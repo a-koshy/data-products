@@ -1,0 +1,73 @@
+Predicting National Happiness
+=======================================================
+author: Aranya Koshy
+date: 11 February 2018
+autosize: true
+
+Motivation
+========================================================
+
+```{r setup, message=F, echo=F, results="hide"}
+library(dplyr)
+library(rworldmap)
+
+Happiness <- read.csv("data/Happiness.csv")
+
+Comp_Data <- select(Happiness, Country, Ladder) %>%
+    mutate(Country=as.character(Country)) %>% 
+    mutate(Country=replace(Country,Country=="Palestinian Territories","Palestine")) %>%
+    mutate(Country=replace(Country,Country=="Taiwan Province of China","Taiwan")) %>% 
+    mutate(Country=replace(Country, Country=="Hong Kong S.A.R., China","Hong Kong"))
+colnames(Comp_Data)<-c("Country","National Happiness Score")
+
+colourPalette <- RColorBrewer::brewer.pal(7,'OrRd')
+sPDF <- joinCountryData2Map(Comp_Data, joinCode = "NAME",nameJoinColumn = "Country", verbose=FALSE)
+```
+
+```{r map, echo=F}
+mapParams <- mapCountryData(sPDF, nameColumnToPlot = "National Happiness Score",
+                                    colourPalette = colourPalette,
+                                    addLegend = FALSE)
+do.call(addMapLegend, c(mapParams, legendWidth=0.8, legendLabels="all",
+                                legendShrink=1, sigFigs=2))
+```
+
+***
+
+There is considerable variation of national happiness scores across the world.
+
+National happiness has clear relationships with many socio-economic variables:
+
+- GDP per capita
+- Freedom
+- Social Support
+- Life Expectancy
+
+Making Predictions
+========================================================
+
+This app uses a simple regression model to predict happiness scores for different levels of each predictor.
+
+ Happiness = log(GDP) + Positive Affect + Freedom + Social Support
+
+This relationship explains the data quite well.
+
+Using new values for each predictor, we can predict the happiness level of a country with those characteristics.
+
+Significance of the app
+========================================================
+
+- It helps to explain relationships between variables
+- It can create predictions for new values of predictors
+
+It is important to note that we cannot make conclusions about causality with this!
+
+For example, we can't say whether high GDP causes high happiness, or the other way round. We only know that they tend to go together.
+
+Conclusion
+========================================================
+
+This app is a simple but powerful first attempt at understanding the relationships between various socio-economic variables and national happiness.
+
+
+The data  for this project was taken from the [World Happiness Report 2017](http://worldhappiness.report/ed/2017/).
